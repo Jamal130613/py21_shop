@@ -49,3 +49,28 @@ class LoginSerializer(serializers.Serializer):
 
             attrs['user'] = user
             return attrs
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, min_length=6)
+    password2 = serializers.CharField(required=True, min_length=6)
+
+    def validate_old_password(self, password):
+        user = self.context.get('request').user
+        if not user.check_password(password):
+            raise serializers.ValidationError('Password is not correct!!!')
+        return password
+
+    def validate(self, attrs):
+        password1 = attrs.get('password')
+        password2 = attrs.get('password2')
+        if password1 != password2:
+            raise serializers.ValidationError('Passwords do not match!')
+        return attrs
+
+    def set_new_password(self):
+        user = self.context.get('request').user
+        password = self.validated_data.get('password')
+        user.set_password(password)
+        user.save()
