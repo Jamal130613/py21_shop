@@ -42,8 +42,10 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     # my apps
     'applications.account',
-    'applications.card',
+    'applications.cart',
     'applications.product',
+    'django_filters',
+    'drf_yasg',
 
 ]
 
@@ -129,6 +131,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
@@ -145,7 +151,10 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES':[
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication'
-    ]
+    ],
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    # 'PAGE_SIZE': 1
+    # 'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permission.IsAuthenticated']
 }
