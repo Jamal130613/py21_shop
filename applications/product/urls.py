@@ -11,3 +11,4 @@ urlpatterns = [
     # path('category/', CategoryView.as_view({'get': 'list'})),
     path('', include(router.urls))
 ]
+# TODO:Реализовать работы с комментарием и переопределить to representation  на вывод комментариев к продукту

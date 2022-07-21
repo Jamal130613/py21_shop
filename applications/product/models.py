@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 User = get_user_model()
@@ -46,3 +47,57 @@ class Image(models.Model):
     image = models.ImageField(upload_to='products')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='images')
+
+
+class Like(models.Model):
+    """
+    Модель лайков
+    """
+    owner = models.ForeignKey(User,
+                              on_delete=models.CASCADE,
+                              related_name='likes',
+                              verbose_name='Like owner',)
+    product = models.ForeignKey(Product,
+                                on_delete=models.CASCADE,
+                                related_name='likes',
+                                verbose_name='Product')
+    like = models.BooleanField('like', default=False)
+
+    def __str__(self):
+        return f'{self.product}  {self.like}'
+
+
+class Rating(models.Model):
+    """
+    Модель рейтингов
+    """
+    owner = models.ForeignKey(User,
+                              on_delete=models.CASCADE,
+                              related_name='ratings',
+                              verbose_name='Rating owner')
+    product = models.ForeignKey(Product,
+                                on_delete=models.CASCADE,
+                                related_name='ratings',
+                                verbose_name='Product')
+    rating = models.SmallIntegerField(
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(5)
+        ], default=1
+    )
+
+    def __str__(self):
+        return f'{self.product} - {self.rating}'
+
+
+class Comment(models.Model):
+    owner = models.ForeignKey(User,on_delete=models.CASCADE,related_name='comments')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,related_name='comments')
+    text = models.TextField()
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_on']
+
+    def __str__(self):
+        return f'{self.owner - self.text}'
