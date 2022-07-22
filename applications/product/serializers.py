@@ -59,7 +59,7 @@ class ProductSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['likes'] = instance.likes.filter(like=True).count()
         # representation['rating'] = instance.rating.get(sum(['rating']))
-        # print(representation)
+        print(representation)
         # TODO: Отобразить рейтинг
         return representation
 

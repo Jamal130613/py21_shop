@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet, ModelViewSet
-from applications.product.models import Category, Product, Like, Rating
+from applications.product.models import Category, Product, Like, Rating, Comment
 from applications.product.permissions import CustomIsAdmin
 from applications.product.serializers import CategorySerializer, ProductSerializer, ForgotPasswordSerializer, \
     ForgotPasswordCompleteSerializer, RatingSerializer, CommentSerializer
@@ -70,9 +70,20 @@ class ProductView(ModelViewSet):
     @action(methods=['POST'], detail=True)
     def comment(self, request, pk, *args, **kwargs):
         comment = CommentSerializer(data=request.data)
-        if comment.is_valid():
-            comment.save()
-        return Response(status=201)
+        comment.is_valid(raise_exception=True)
+        comment, _ = Comment.objects.create(product_id=pk,
+                                            owner=request.user)
+        comment.save()
+        return Response(request.data, status=201)
+
+
+# class CommentView(APIView):
+#     def post(self, request):
+#         comment = CommentSerializer(data=request.data)
+#         if comment.is_valid():
+#             comment.save()
+#         return Response(status=201)
+    
 
 
 class ForgotPasswordView(APIView):
@@ -90,12 +101,7 @@ class ForgotPasswordComplete(APIView):
         serializer = ForgotPasswordCompleteSerializer(data=data)
 
 
-class CommentView(APIView):
-    def post(self, request):
-        comment = CommentSerializer(data=request.data)
-        if comment.is_valid():
-            comment.save()
-        return Response(status=201)
+
 
 
 
