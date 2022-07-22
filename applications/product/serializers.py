@@ -30,6 +30,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.email')
 
     class Meta:
         model = Comment
@@ -39,7 +40,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.email')
     images = ImageSerializer(many=True, read_only=True)
-    comments = CommentSerializer(many=True)
+    comments = CommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
@@ -58,9 +59,14 @@ class ProductSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['likes'] = instance.likes.filter(like=True).count()
-        # representation['rating'] = instance.rating.get(sum(['rating']))
-        print(representation)
-        # TODO: Отобразить рейтинг
+        rating_result = 0
+        for rating in instance.ratings.all():
+            rating_result += int(rating.rating)
+        try:
+            representation['rating'] = rating_result / instance.ratings.all().count()
+        except ZeroDivisionError:
+            # representation['rating'] = 0
+            pass
         return representation
 
 

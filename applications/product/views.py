@@ -30,7 +30,7 @@ class CategoryView(ModelViewSet):
 class ProductView(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ['category', 'owner']
     ordering_fields = ['name', 'id']
@@ -67,22 +67,34 @@ class ProductView(ModelViewSet):
         obj.save()
         return Response(request.data, status=201)
 
-    @action(methods=['POST'], detail=True)
-    def comment(self, request, pk, *args, **kwargs):
-        comment = CommentSerializer(data=request.data)
-        comment.is_valid(raise_exception=True)
-        comment, _ = Comment.objects.create(product_id=pk,
-                                            owner=request.user)
-        comment.save()
-        return Response(request.data, status=201)
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permissions = []
+        elif self.action == 'like' or self.action == 'rating':
+            permissions = [IsAuthenticated]
+        else:
+            permissions = [IsAuthenticated]
+
+        return [p() for p in permissions]
+
+    # @action(methods=['POST'], detail=True)
+    # def comment(self, request, pk, *args, **kwargs):
+    #     comment = CommentSerializer(data=request.data)
+    #     comment.is_valid(raise_exception=True)
+    #     comment, _ = Comment.objects.create(product_id=pk,
+    #                                         owner=request.user)
+    #     comment.save()
+    #     return Response(request.data, status=201)
 
 
-# class CommentView(APIView):
-#     def post(self, request):
-#         comment = CommentSerializer(data=request.data)
-#         if comment.is_valid():
-#             comment.save()
-#         return Response(status=201)
+class CommentView(ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
     
 
 

@@ -1,5 +1,6 @@
+from xml.etree.ElementTree import Comment
 from django.contrib import admin
-from applications.product.models import Category, Product, Image, Like, Rating
+from applications.product.models import Category, Product, Image, Like, Rating, Comment
 
 admin.site.register(Category)
 # admin.site.register(Product)
@@ -22,11 +23,15 @@ class ProductAdmin(admin.ModelAdmin):
 admin.site.register(Product, ProductAdmin)
 
 
-# class CommentAdmin(admin.ModelAdmin):
-#     list_display = ('name', 'body', 'post', 'created_on', 'active')
-#     list_filter = ('active', 'created_on')
-#     search_fields = ('name', 'email', 'body')
-#     actions = ['approve_comments']
-#
-#     def approve_comments(self, request, queryset):
-#         queryset.update(active=True)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('product', 'text', 'created_on')
+    list_filter = ('created_on', 'text')
+    search_fields = ('product', 'text')
+    actions = ['approve_comments']
+
+    def approve_comments(self, request, queryset):
+        queryset.update(active=True)
+
+
+admin.site.register(Comment, CommentAdmin)
+

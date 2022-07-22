@@ -158,3 +158,14 @@ REST_FRAMEWORK = {
     # 'PAGE_SIZE': 1
     # 'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permission.IsAuthenticated']
 }
+
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    }
+}
