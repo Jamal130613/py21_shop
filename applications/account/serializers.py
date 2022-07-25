@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
-from applications.account.send_mail import send_confirmation_email
+from applications.account.send_mail import send_confirmation_email, send_mail
 
 User = get_user_model()
 
@@ -73,4 +73,56 @@ class ChangePasswordSerializer(serializers.Serializer):
         user = self.context.get('request').user
         password = self.validated_data.get('password')
         user.set_password(password)
+        user.save()
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, email):
+        if not User.objects.filter(email=email).exists():
+            raise serializers.ValidationError('User is not registered')
+        return email
+
+    def send_code(self):
+        email = self.validated_data.get('email')
+        user = User.objects.get(email=email)
+        user.generate_activation_code()
+        send_mail(
+            'Password reset',
+            f'Your activation code: {user.activation_code}',
+            'jamalaskarovaa@gmail.com',
+            [email]
+        )
+
+
+class ForgotPasswordCompleteSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    code = serializers.CharField(min_length=8, max_length=8, required=True)
+    password = serializers.CharField(required=True)
+    password_confirm = serializers.CharField(required=True)
+
+    def validate_email(self, email):
+        if not User.objects.filter(email=email).exists():
+            raise serializers.ValidationError('User is not registered')
+        return email
+
+    def validate_code(self, code):
+        if not User.objects.filter(activation_code=code).exists():
+            raise serializers.ValidationError('User is not registered')
+        return code
+
+    def validate(self, attrs):
+        password1 = attrs.get('password')
+        password2 = attrs.get('password_confirm')
+        if password1 != password2:
+            raise serializers.ValidationError('Passwords do not match')
+        return attrs
+
+    def set_new_pass(self):
+        email = self.validated_data.get('email')
+        password = self.validated_data.get('password')
+        user = User.objects.get(email=email)
+        user.set_password(password)
+        user.activation_code = ''
         user.save()

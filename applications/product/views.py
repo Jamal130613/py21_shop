@@ -9,8 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet, ModelViewSet
 from applications.product.models import Category, Product, Like, Rating, Comment
 from applications.product.permissions import CustomIsAdmin
-from applications.product.serializers import CategorySerializer, ProductSerializer, ForgotPasswordSerializer, \
-    ForgotPasswordCompleteSerializer, RatingSerializer, CommentSerializer
+from applications.product.serializers import CategorySerializer, ProductSerializer, RatingSerializer, CommentSerializer
 
 
 class LargeResultsSetPagination(PageNumberPagination):
@@ -98,19 +97,6 @@ class CommentView(ModelViewSet):
     
 
 
-class ForgotPasswordView(APIView):
-    def post(self, request):
-        data = request.data
-        serializer = ForgotPasswordSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.send_code()
-        return Response('We send you an email to reset your password')
-
-
-class ForgotPasswordComplete(APIView):
-    def post(self, request):
-        data = request.data
-        serializer = ForgotPasswordCompleteSerializer(data=data)
 
 
 

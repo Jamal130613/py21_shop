@@ -96,8 +96,6 @@ class Comment(models.Model):
     text = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
 
-    # class Meta:
-    #     ordering = ['created_on']
-    #
-    # def __str__(self):
-    #     return f'{self.owner - self.text}'
+    def __str__(self):
+        return f'{self.product}'
+

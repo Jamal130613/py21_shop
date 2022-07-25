@@ -18,3 +18,4 @@ class OrderSerializer(serializers.ModelSerializer):
         product.amount -= quantity_order
         product.save()
         return super().create(validated_data)
+
