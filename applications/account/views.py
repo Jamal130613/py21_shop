@@ -5,7 +5,8 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from applications.account.serializers import RegisterSerializer, LoginSerializer, ChangePasswordSerializer, ForgotPasswordSerializer, ForgotPasswordCompleteSerializer
+from applications.account.serializers import RegisterSerializer, LoginSerializer, ChangePasswordSerializer, \
+    ForgotPasswordSerializer, ForgotPasswordCompleteSerializer
 
 User = get_user_model()
 
@@ -73,3 +74,6 @@ class ForgotPasswordCompleteView(APIView):
     def post(self, request):
         data = request.data
         serializer = ForgotPasswordCompleteSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.set_new_pass()
+        return Response('Password is successfully updated!')

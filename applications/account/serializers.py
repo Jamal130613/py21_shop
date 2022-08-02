@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
-from applications.account.send_mail import send_confirmation_email, send_mail
+from applications.account.send_mail import send_confirmation_email, send_mail, forgot_password_email
 
 User = get_user_model()
 
@@ -87,20 +87,16 @@ class ForgotPasswordSerializer(serializers.Serializer):
     def send_code(self):
         email = self.validated_data.get('email')
         user = User.objects.get(email=email)
-        user.generate_activation_code()
-        send_mail(
-            'Password reset',
-            f'Your activation code: {user.activation_code}',
-            'jamalaskarovaa@gmail.com',
-            [email]
-        )
+        user.create_activation_code()
+        user.save()
+        forgot_password_email(user.activation_code, email)
 
 
 class ForgotPasswordCompleteSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    code = serializers.CharField(min_length=8, max_length=8, required=True)
+    code = serializers.CharField(min_length=8, required=True)
     password = serializers.CharField(required=True)
-    password_confirm = serializers.CharField(required=True)
+    password_confirm = serializers.CharField(required=True, min_length=6)
 
     def validate_email(self, email):
         if not User.objects.filter(email=email).exists():
@@ -113,9 +109,9 @@ class ForgotPasswordCompleteSerializer(serializers.Serializer):
         return code
 
     def validate(self, attrs):
-        password1 = attrs.get('password')
-        password2 = attrs.get('password_confirm')
-        if password1 != password2:
+        pass1 = attrs.get('password')
+        pass2 = attrs.get('password_confirm')
+        if pass1 != pass2:
             raise serializers.ValidationError('Passwords do not match')
         return attrs
 

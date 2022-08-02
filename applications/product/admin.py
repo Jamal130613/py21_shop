@@ -18,6 +18,10 @@ class ImageInAdmin(admin.TabularInline):
 
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ImageInAdmin]
+    list_display = ['id', 'name', 'price', 'count_like']
+
+    def count_like(self, obj):
+        return obj.likes.filter(like=True).count()
 
 
 admin.site.register(Product, ProductAdmin)

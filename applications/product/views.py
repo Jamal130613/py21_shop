@@ -68,22 +68,13 @@ class ProductView(ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
-            permissions = []
+            permissions = [IsAuthenticated]
         elif self.action == 'like' or self.action == 'rating':
             permissions = [IsAuthenticated]
         else:
             permissions = [IsAuthenticated]
 
         return [p() for p in permissions]
-
-    # @action(methods=['POST'], detail=True)
-    # def comment(self, request, pk, *args, **kwargs):
-    #     comment = CommentSerializer(data=request.data)
-    #     comment.is_valid(raise_exception=True)
-    #     comment, _ = Comment.objects.create(product_id=pk,
-    #                                         owner=request.user)
-    #     comment.save()
-    #     return Response(request.data, status=201)
 
 
 class CommentView(ModelViewSet):
@@ -94,27 +85,3 @@ class CommentView(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-    
-
-
-
-
-
-
-
-
-
-
-
-# class CategoryView(ViewSet):
-#     def list(self, request):
-#         queryset = Category.objects.all()
-#         serializers = CategorySerializer(queryset, many=True)
-#         return Response(serializers.data)
-#
-#     def create(self, request):
-#         serializer = CategorySerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=201)
-#         return Response(serializer.errors, status=400)

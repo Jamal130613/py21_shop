@@ -9,3 +9,12 @@ def send_confirmation_email(code, email):
         'jamalaskarovaa@gmail.com',
         [email]
     )
+
+
+def forgot_password_email(code, email):
+    send_mail(
+        'Password reset',
+        f'Your activation code: {code}',
+        'jamalaskarovaa@gmail.com',
+        [email]
+    )
