@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from rest_framework import serializers
 from applications.product.models import Category, Product, Image, Comment
+from applications.product.tasks import spam_email_for_product
 
 User = get_user_model()
 
@@ -48,6 +49,8 @@ class ProductSerializer(serializers.ModelSerializer):
         requests = self.context.get('request')
         images = requests.FILES
         product = Product.objects.create(**validated_data)
+        user = User.objects.get(**validated_data)
+        spam_email_for_product.delay(user.email)
 
         for image in images.getlist('images'):
             Image.objects.create(product=product, image=image)
